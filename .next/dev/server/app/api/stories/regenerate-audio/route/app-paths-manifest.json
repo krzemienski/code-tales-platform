@@ -1,0 +1,3 @@
+{
+  "/api/stories/regenerate-audio/route": "app/api/stories/regenerate-audio/route.js"
+}

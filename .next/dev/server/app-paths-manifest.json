@@ -1,5 +1,4 @@
 {
   "/api/auth/user/route": "app/api/auth/user/route.js",
-  "/discover/page": "app/discover/page.js",
   "/page": "app/page.js"
 }

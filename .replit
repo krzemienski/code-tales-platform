@@ -41,3 +41,12 @@ build = ["npm", "run", "build"]
 
 [objectStorage]
 defaultBucketID = "replit-objstore-af327fe0-51d5-4214-a216-aef8165ef304"
+
+[userenv]
+
+[userenv.shared]
+REPLIT_OIDC_CLIENT_ID = "290dae28-af23-4171-ba3e-98c912d8a005"
+REPLIT_OIDC_ISSUER = "https://replit.com/oidc"
+REPLIT_OIDC_CLIENT_SECRET = "jvcVV8bB8ssiHQsEXfRMRCbNQ_6tmbWT4WizxioSq1cBmdzAqG8ZkQ9nSG8aRXD-PnLbspu5aBfLst5p5CWSNA"
+ENABLE_DEV_AUTH = "true"
+DEV_AUTH_TOKEN = "codetales-ios-dev-2026"

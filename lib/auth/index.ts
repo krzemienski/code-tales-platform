@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { db, users, authSessions } from "@/lib/db";
 import { eq, and, gt } from "drizzle-orm";
 import type { User } from "@/lib/db/schema";
@@ -6,6 +6,8 @@ import crypto from "crypto";
 
 const SESSION_COOKIE_NAME = "replit_auth_session";
 const SESSION_EXPIRY_DAYS = 7;
+
+const DEV_USER_ID = "dev-user-ios";
 
 interface ReplitUser {
   id: string;
@@ -44,11 +46,13 @@ function verifyToken(token: string): string | null {
       .createHmac("sha256", secret)
       .update(sessionId)
       .digest("hex");
-    
-    if (!crypto.timingSafeEqual(
-      Buffer.from(providedSignature, "hex"),
-      Buffer.from(expectedSignature, "hex")
-    )) {
+
+    if (
+      !crypto.timingSafeEqual(
+        Buffer.from(providedSignature, "hex"),
+        Buffer.from(expectedSignature, "hex")
+      )
+    ) {
       return null;
     }
     return sessionId;
@@ -57,11 +61,56 @@ function verifyToken(token: string): string | null {
   }
 }
 
+async function checkDevAuth(): Promise<User | null> {
+  if (process.env.ENABLE_DEV_AUTH !== "true") return null;
+  const devToken = process.env.DEV_AUTH_TOKEN;
+  if (!devToken) return null;
+
+  try {
+    const headersList = await headers();
+    const authHeader =
+      headersList.get("x-dev-auth-token") ||
+      headersList.get("authorization")?.replace(/^Bearer\s+/i, "");
+
+    if (!authHeader || authHeader !== devToken) return null;
+
+    const [existingUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, DEV_USER_ID));
+
+    if (existingUser) return existingUser;
+
+    const [devUser] = await db
+      .insert(users)
+      .values({
+        id: DEV_USER_ID,
+        email: "dev@codetales.app",
+        firstName: "Dev",
+        lastName: "User",
+        profileImageUrl: null,
+      })
+      .onConflictDoUpdate({
+        target: users.id,
+        set: { updatedAt: new Date() },
+      })
+      .returning();
+
+    return devUser || null;
+  } catch (error) {
+    console.error("Dev auth check error:", error);
+    return null;
+  }
+}
+
 export async function getAuthenticatedUser(): Promise<User | null> {
   try {
+    const devUser = await checkDevAuth();
+    if (devUser) return devUser;
+
     const cookieStore = await cookies();
     const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-    
+
     if (!sessionToken) {
       return null;
     }
@@ -137,14 +186,14 @@ export async function setSessionCookie(sessionToken: string): Promise<void> {
 export async function clearSessionCookie(): Promise<void> {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-  
+
   if (sessionToken) {
     const sessionId = verifyToken(sessionToken);
     if (sessionId) {
       await db.delete(authSessions).where(eq(authSessions.id, sessionId));
     }
   }
-  
+
   cookieStore.delete(SESSION_COOKIE_NAME);
 }
 

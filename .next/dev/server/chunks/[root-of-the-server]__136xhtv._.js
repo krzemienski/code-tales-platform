@@ -459,6 +459,7 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 const SESSION_COOKIE_NAME = "replit_auth_session";
 const SESSION_EXPIRY_DAYS = 7;
+const DEV_USER_ID = "dev-user-ios";
 function getSessionSecret() {
     const secret = process.env.SESSION_SECRET;
     if (!secret) {
@@ -487,8 +488,38 @@ function verifyToken(token) {
         return null;
     }
 }
+async function checkDevAuth() {
+    if (process.env.ENABLE_DEV_AUTH !== "true") return null;
+    const devToken = process.env.DEV_AUTH_TOKEN;
+    if (!devToken) return null;
+    try {
+        const headersList = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["headers"])();
+        const authHeader = headersList.get("x-dev-auth-token") || headersList.get("authorization")?.replace(/^Bearer\s+/i, "");
+        if (!authHeader || authHeader !== devToken) return null;
+        const [existingUser] = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__["db"].select().from(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["users"]).where((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$drizzle$2d$orm$2f$sql$2f$expressions$2f$conditions$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["eq"])(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["users"].id, DEV_USER_ID));
+        if (existingUser) return existingUser;
+        const [devUser] = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__["db"].insert(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["users"]).values({
+            id: DEV_USER_ID,
+            email: "dev@codetales.app",
+            firstName: "Dev",
+            lastName: "User",
+            profileImageUrl: null
+        }).onConflictDoUpdate({
+            target: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$schema$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["users"].id,
+            set: {
+                updatedAt: new Date()
+            }
+        }).returning();
+        return devUser || null;
+    } catch (error) {
+        console.error("Dev auth check error:", error);
+        return null;
+    }
+}
 async function getAuthenticatedUser() {
     try {
+        const devUser = await checkDevAuth();
+        if (devUser) return devUser;
         const cookieStore = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["cookies"])();
         const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
         if (!sessionToken) {

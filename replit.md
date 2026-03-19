@@ -119,6 +119,26 @@ Comprehensive documentation in `docs/`:
 - `REPOSITORY_ANALYSIS_PIPELINE.md` - Context preparation for AI
 - `ELEVENLABS_STUDIO_INTEGRATION_PLAN.md` - Studio API integration
 
+## Authentication Architecture
+
+### OIDC Flow (active)
+- **Provider**: Replit OIDC (`https://replit.com/oidc`)
+- **Client**: Dynamically registered via RFC 7591 dynamic client registration
+- **Flow**: Authorization Code + PKCE (S256)
+- **Scopes**: `openid profile email`
+- **Claims used**: `sub` (user ID), `username`, `name`, `email`, `profile_image_url`
+- **Login route**: `/api/auth/login` → OIDC auth URL with PKCE
+- **Callback route**: `/api/auth/callback` → token exchange + session creation
+- **Session**: HMAC-signed UUID stored in `replit_auth_session` cookie; sessions in `auth_sessions` DB table
+
+### Dev Auth Bypass
+- Enabled when `ENABLE_DEV_AUTH=true` and `DEV_AUTH_TOKEN` is set
+- iOS/mobile clients send `X-Dev-Auth-Token: <token>` or `Authorization: Bearer <token>`
+- Creates/uses a stable dev user (`dev-user-ios`) without OAuth flow
+
+### Why OIDC instead of auth_with_repl_site
+The legacy `auth_with_repl_site` system sent JWTs signed with key `prod:1` (ES256) to a `/__replauth` endpoint. Replit's own CDN stopped recognizing this key, returning `401 unknown keyID prod:1`. Switching to Replit's proper OIDC server (`replit.com/oidc`) resolves this using standard OAuth2 + PKCE that Replit fully supports.
+
 ## Environment Variables
 | Variable | Purpose |
 |----------|---------|
@@ -127,8 +147,15 @@ Comprehensive documentation in `docs/`:
 | ELEVENLABS_API_KEY | TTS and Studio API |
 | DEFAULT_OBJECT_STORAGE_BUCKET_ID | Audio storage |
 | REPLIT_DEV_DOMAIN | Webhook URL construction |
+| REPLIT_OIDC_CLIENT_ID | OIDC client ID (auto-registered) |
+| REPLIT_OIDC_CLIENT_SECRET | OIDC client secret (auto-registered) |
+| REPLIT_OIDC_ISSUER | OIDC issuer URL (`https://replit.com/oidc`) |
+| ENABLE_DEV_AUTH | `true` to enable dev auth bypass |
+| DEV_AUTH_TOKEN | Token for iOS/dev auth (`codetales-ios-dev-2026`) |
+| SESSION_SECRET | HMAC secret for session token signing |
 
 ## Recent Changes
+- **2026-03-19**: Migrated auth from broken `auth_with_repl_site` (failing with `unknown keyID prod:1`) to Replit OIDC (`replit.com/oidc`) using Authorization Code + PKCE flow via openid-client v6. Added dev auth bypass for iOS (`X-Dev-Auth-Token` header or `Authorization: Bearer <token>`). Client auto-registered via RFC 7591 dynamic registration.
 - **2026-01-12**: Enhanced landing page with story discovery features - filter bar (fiction/documentary/tutorial/technical/comedy), search by title/repo, story count indicators
 - **2026-01-12**: Generated 8 new sample stories from popular repos (FastAPI, Flask, LangChain, Supabase, shadcn/ui, Prisma, tRPC, Drizzle ORM)
 - **2026-01-12**: Database now contains 28 completed public stories with audio across 6 narrative styles

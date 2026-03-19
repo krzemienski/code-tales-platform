@@ -5973,6 +5973,14 @@
     background: radial-gradient(circle at 20% 20%, #6366f1a6, #0000 45%), radial-gradient(circle at 80% 75%, #0ea5e973, #0000 40%);
   }
 
+  .\[file\:line\] {
+    file: line;
+  }
+
+  .\[path\:line\] {
+    path: line;
+  }
+
   .\[web\:1\] {
     web: 1;
   }

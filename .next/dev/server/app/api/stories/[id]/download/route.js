@@ -1,0 +1,12 @@
+var R=require("../../../../../chunks/[turbopack]_runtime.js")("server/app/api/stories/[id]/download/route.js")
+R.c("server/chunks/node_modules_next_0uwtk3~._.js")
+R.c("server/chunks/node_modules_@opentelemetry_api_build_esm_0ltshjr._.js")
+R.c("server/chunks/node_modules_drizzle-orm_03rhnsk._.js")
+R.c("server/chunks/node_modules_tr46_0_f7~lv._.js")
+R.c("server/chunks/0~nv_google-auth-library_0.gmfj.._.js")
+R.c("server/chunks/node_modules_@google-cloud_storage_0hkm4h5._.js")
+R.c("server/chunks/[root-of-the-server]__12fahak._.js")
+R.c("server/chunks/[root-of-the-server]__0d-b-n3._.js")
+R.c("server/chunks/_next-internal_server_app_api_stories_[id]_download_route_actions_0da512z.js")
+R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/stories/[id]/download/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)")
+module.exports=R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/stories/[id]/download/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)").exports

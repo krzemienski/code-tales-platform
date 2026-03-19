@@ -1,0 +1,23 @@
+(index):1  GET https://codetales.app/_next/static/media/797e433ab948586e-s.p.0.q-h669a_dqa.woff2 net::ERR_ABORTED 404 (Not Found)
+(index):1  GET https://codetales.app/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2 net::ERR_ABORTED 404 (Not Found)
+(index):1  GET https://codetales.app/_next/static/media/2a65768255d6b625-s.p.14by5b4al-y~f.woff2 net::ERR_ABORTED 404 (Not Found)
+(index):1  GET https://codetales.app/_next/static/chunks/12kb.se6_2y61.js net::ERR_ABORTED 404 (Not Found)
+(index):1  GET https://codetales.app/_next/static/chunks/10yxny7ok92jq.css net::ERR_ABORTED 404 (Not Found)
+(index):1  GET https://codetales.app/_next/static/chunks/0y8.l4_a8gfmk.css net::ERR_ABORTED 404 (Not Found)
+(index):1  GET https://codetales.app/_next/static/chunks/0hs0sbst0a4j5.js net::ERR_ABORTED 404 (Not Found)
+(index):1  GET https://codetales.app/_next/static/chunks/01xf2yv_oqtaq.js net::ERR_ABORTED 404 (Not Found)
+(index):1  GET https://codetales.app/_next/static/chunks/08~mdtbzo3wns.js net::ERR_ABORTED 404 (Not Found)
+(index):1  GET https://codetales.app/_next/static/chunks/0309748flo8-p.js net::ERR_ABORTED 404 (Not Found)
+(index):1  GET https://codetales.app/_next/static/chunks/turbopack-0mudknqqmy1_1.js net::ERR_ABORTED 404 (Not Found)
+(index):1  GET https://codetales.app/_next/static/chunks/108vd6x23~h.2.js net::ERR_ABORTED 404 (Not Found)
+(index):1  GET https://codetales.app/_next/static/chunks/0-op4kf5usut7.js net::ERR_ABORTED 404 (Not Found)
+(index):1  GET https://codetales.app/_next/static/chunks/0lvagl792.28s.js net::ERR_ABORTED 404 (Not Found)
+(index):1  GET https://codetales.app/_next/static/chunks/0261wsgsvpplq.js net::ERR_ABORTED 404 (Not Found)
+(index):1  GET https://codetales.app/_next/static/chunks/10ht8t22_b8kr.js net::ERR_ABORTED 404 (Not Found)
+(index):1 Uncaught (in promise) Error: Access to storage is not allowed from this context.
+(index):1 Uncaught (in promise) Error: Access to storage is not allowed from this context.
+(index):1 Uncaught (in promise) Error: Access to storage is not allowed from this context.
+(index):1 Uncaught (in promise) Error: Access to storage is not allowed from this context.
+(index):1 The resource https://codetales.app/_next/static/media/797e433ab948586e-s.p.0.q-h669a_dqa.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+(index):1 The resource https://codetales.app/_next/static/media/2a65768255d6b625-s.p.14by5b4al-y~f.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+(index):1 The resource https://codetales.app/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.

@@ -1,5 +1,5 @@
 var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/stories/generate-studio/route.js")
-R.c("server/chunks/[root-of-the-server]__0-npx1f._.js")
+R.c("server/chunks/[root-of-the-server]__0~yo-o-._.js")
 R.c("server/chunks/node_modules_next_11synfn._.js")
 R.c("server/chunks/_0dipwo8._.js")
 R.c("server/chunks/node_modules_next_dist_0npcise._.js")

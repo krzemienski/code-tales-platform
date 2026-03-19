@@ -1,5 +1,5 @@
 var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/stories/regenerate-audio/route.js")
-R.c("server/chunks/[externals]__0ngwbne._.js")
+R.c("server/chunks/[externals]__0__0cs2._.js")
 R.c("server/chunks/_0bfggyi._.js")
 R.c("server/chunks/[root-of-the-server]__0i3e91a._.js")
 R.c("server/chunks/[root-of-the-server]__0lgi6~1._.js")

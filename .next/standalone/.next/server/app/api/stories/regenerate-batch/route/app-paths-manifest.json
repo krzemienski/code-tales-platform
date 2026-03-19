@@ -1,0 +1,3 @@
+{
+  "/api/stories/regenerate-batch/route": "app/api/stories/regenerate-batch/route.js"
+}

@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-/* Removed @import "tw-animate-css" that causes LightningCSS error */
-
 @custom-variant dark (&:is(.dark *));
 
 :root {

@@ -155,6 +155,7 @@ The legacy `auth_with_repl_site` system sent JWTs signed with key `prod:1` (ES25
 | SESSION_SECRET | HMAC secret for session token signing |
 
 ## Recent Changes
+- **2026-03-19**: Full functional audit completed. Fixed `/api/stories/[id]/download` endpoint — was crashing with `ERR_INVALID_URL` because audio chunks are stored as Object Storage paths (`.private/audio/...`), not URLs; now uses `getFileStream()` from `@/lib/storage`. Fixed demo mode cookie name mismatch — `setDemoMode()` set `codetales_demo_mode` but dashboard checked `codetales_demo`; now consistent. All auth flows verified (OIDC PKCE, dev auth bypass, session lifecycle, logout). All pages and API endpoints audited with authenticated user.
 - **2026-03-19**: Migrated auth from broken `auth_with_repl_site` (failing with `unknown keyID prod:1`) to Replit OIDC (`replit.com/oidc`) using Authorization Code + PKCE flow via openid-client v6. Added dev auth bypass for iOS (`X-Dev-Auth-Token` header or `Authorization: Bearer <token>`). Client auto-registered via RFC 7591 dynamic registration.
 - **2026-01-12**: Enhanced landing page with story discovery features - filter bar (fiction/documentary/tutorial/technical/comedy), search by title/repo, story count indicators
 - **2026-01-12**: Generated 8 new sample stories from popular repos (FastAPI, Flask, LangChain, Supabase, shadcn/ui, Prisma, tRPC, Drizzle ORM)

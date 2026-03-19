@@ -8,7 +8,12 @@ import { Info } from "lucide-react"
 
 export default function ResetPasswordPage() {
   const handleLogin = () => {
-    window.location.href = "/api/auth/login?return=/dashboard"
+    const url = "/api/auth/login?return=/dashboard"
+    if (window.top && window.top !== window) {
+      window.top.location.href = url
+    } else {
+      window.location.href = url
+    }
   }
 
   return (

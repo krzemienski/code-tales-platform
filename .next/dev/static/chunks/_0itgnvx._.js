@@ -1396,7 +1396,12 @@ function AuthProvider({ children }) {
     const login = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "AuthProvider.useCallback[login]": ()=>{
             const currentPath = window.location.pathname;
-            window.location.href = `/api/auth/login?return=${encodeURIComponent(currentPath)}`;
+            const url = `/api/auth/login?return=${encodeURIComponent(currentPath)}`;
+            if (window.top && window.top !== window) {
+                window.top.location.href = url;
+            } else {
+                window.location.href = url;
+            }
         }
     }["AuthProvider.useCallback[login]"], []);
     const logout = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
@@ -1431,7 +1436,7 @@ function AuthProvider({ children }) {
         children: children
     }, void 0, false, {
         fileName: "[project]/lib/auth/use-auth.tsx",
-        lineNumber: 73,
+        lineNumber: 78,
         columnNumber: 5
     }, this);
 }

@@ -13,7 +13,12 @@ export function LoginForm() {
   const redirectTo = searchParams.get("redirect") || "/dashboard"
 
   const handleLogin = useCallback(() => {
-    window.location.href = `/api/auth/login?return=${encodeURIComponent(redirectTo)}`
+    const url = `/api/auth/login?return=${encodeURIComponent(redirectTo)}`
+    if (window.top && window.top !== window) {
+      window.top.location.href = url
+    } else {
+      window.location.href = url
+    }
   }, [redirectTo])
 
   const handleDemoMode = useCallback(() => {

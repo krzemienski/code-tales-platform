@@ -4,7 +4,12 @@ import { useEffect } from "react"
 
 export default function SignUpPage() {
   useEffect(() => {
-    window.location.href = "/api/auth/login?return=/dashboard"
+    const url = "/api/auth/login?return=/dashboard"
+    if (window.top && window.top !== window) {
+      window.top.location.href = url
+    } else {
+      window.location.href = url
+    }
   }, [])
 
   return (

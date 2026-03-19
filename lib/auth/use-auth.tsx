@@ -52,7 +52,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(() => {
     const currentPath = window.location.pathname;
-    window.location.href = `/api/auth/login?return=${encodeURIComponent(currentPath)}`;
+    const url = `/api/auth/login?return=${encodeURIComponent(currentPath)}`;
+    if (window.top && window.top !== window) {
+      window.top.location.href = url;
+    } else {
+      window.location.href = url;
+    }
   }, []);
 
   const logout = useCallback(async () => {

@@ -50,3 +50,7 @@ REPLIT_OIDC_ISSUER = "https://replit.com/oidc"
 REPLIT_OIDC_CLIENT_SECRET = "jvcVV8bB8ssiHQsEXfRMRCbNQ_6tmbWT4WizxioSq1cBmdzAqG8ZkQ9nSG8aRXD-PnLbspu5aBfLst5p5CWSNA"
 ENABLE_DEV_AUTH = "true"
 DEV_AUTH_TOKEN = "codetales-ios-dev-2026"
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 180000

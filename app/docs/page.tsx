@@ -214,7 +214,7 @@ export default function DocsPage() {
             </p>
             <div className="rounded-lg bg-zinc-900 p-4 font-mono text-sm text-zinc-300">
               <p className="text-zinc-500"># Clone the repository</p>
-              <p>git clone https://github.com/krzemienski/code-story-platform</p>
+              <p>git clone https://github.com/krzemienski/code-tales-platform</p>
               <p className="mt-2 text-zinc-500"># Install dependencies</p>
               <p>pnpm install</p>
               <p className="mt-2 text-zinc-500"># Set up environment variables</p>
@@ -223,7 +223,7 @@ export default function DocsPage() {
               <p>pnpm dev</p>
             </div>
             <Button variant="outline" asChild>
-              <a href="https://github.com/krzemienski/code-story-platform" target="_blank" rel="noopener noreferrer">
+              <a href="https://github.com/krzemienski/code-tales-platform" target="_blank" rel="noopener noreferrer">
                 <Github className="mr-2 h-4 w-4" />
                 View on GitHub
                 <ExternalLink className="ml-2 h-3 w-3" />

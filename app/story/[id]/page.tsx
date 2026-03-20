@@ -11,8 +11,14 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export default async function PublicStoryPage({ params }: PageProps) {
   const { id } = await params
+
+  if (!UUID_REGEX.test(id)) {
+    notFound()
+  }
 
   const storyResult = await db
     .select()

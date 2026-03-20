@@ -3,6 +3,8 @@ import { db } from "@/lib/db"
 import { stories, stageMetrics, processingLogs } from "@/lib/db/schema"
 import { eq, desc } from "drizzle-orm"
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export const dynamic = "force-dynamic"
 
 export async function GET(
@@ -10,6 +12,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: storyId } = await params
+  if (!UUID_RE.test(storyId)) return new Response(JSON.stringify({ error: "Invalid story ID" }), { status: 400, headers: { "Content-Type": "application/json" } })
 
   const story = await db.query.stories.findFirst({
     where: eq(stories.id, storyId),

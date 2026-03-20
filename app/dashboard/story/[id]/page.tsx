@@ -27,12 +27,19 @@ function formatDuration(seconds: number | null): string {
   return `${minutes}:${secs.toString().padStart(2, "0")}`
 }
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export default async function StoryPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+
+  if (!UUID_REGEX.test(id)) {
+    notFound()
+  }
+
   const cookieStore = await cookies()
   const isDemo = cookieStore.get("codetales_demo_mode")?.value === "true"
 
@@ -181,7 +188,7 @@ export default async function StoryPage({
             },
           ]
 
-  const isProcessing = !["complete", "failed"].includes(typedStory.status)
+  const isProcessing = !["completed", "failed"].includes(typedStory.status)
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
@@ -213,7 +220,7 @@ export default async function StoryPage({
             )}
           </div>
 
-          {typedStory.status === "complete" && (
+          {typedStory.status === "completed" && (
             <div className="flex gap-2">
               {typedStory.audio_url && (
                 <Button variant="outline" size="sm" className="bg-transparent" asChild>
@@ -253,7 +260,7 @@ export default async function StoryPage({
         </div>
       )}
 
-      {typedStory.status === "complete" && (
+      {typedStory.status === "completed" && (
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <StoryPlayer

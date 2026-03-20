@@ -3,11 +3,14 @@ import { db } from "@/lib/db"
 import { stageMetrics } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: storyId } = await params
+  if (!UUID_RE.test(storyId)) return NextResponse.json({ error: "Invalid story ID" }, { status: 400 })
 
   try {
     const stages = await db.query.stageMetrics.findMany({

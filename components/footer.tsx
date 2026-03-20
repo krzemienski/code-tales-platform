@@ -14,7 +14,7 @@ export function Footer() {
             </p>
             <div className="flex gap-4">
               <a
-                href="https://github.com/krzemienski/code-story-platform"
+                href="https://github.com/krzemienski/code-tales-platform"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground transition-colors hover:text-foreground"
@@ -65,7 +65,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://github.com/krzemienski/code-story-platform"
+                  href="https://github.com/krzemienski/code-tales-platform"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-muted-foreground hover:text-foreground"
@@ -75,7 +75,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://github.com/krzemienski/code-story-platform#self-hosting"
+                  href="https://github.com/krzemienski/code-tales-platform#self-hosting"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-muted-foreground hover:text-foreground"
@@ -111,7 +111,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://github.com/krzemienski/code-story-platform/issues"
+                  href="https://github.com/krzemienski/code-tales-platform/issues"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-muted-foreground hover:text-foreground"

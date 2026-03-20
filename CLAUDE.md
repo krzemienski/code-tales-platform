@@ -7,7 +7,7 @@ This file provides comprehensive guidance for AI assistants (Claude, Cursor, Git
 **Code Tales** transforms GitHub repositories into immersive audio stories using AI. The platform analyzes repository structure, generates narrative scripts with Claude, and synthesizes audio with ElevenLabs TTS.
 
 - **Live Site**: [codetale.ai](https://codetale.ai)
-- **Repository**: [github.com/krzemienski/code-story-platform](https://github.com/krzemienski/code-story-platform)
+- **Repository**: [github.com/krzemienski/code-tales-platform](https://github.com/krzemienski/code-tales-platform)
 
 ## Tech Stack
 
@@ -59,7 +59,7 @@ This file provides comprehensive guidance for AI assistants (Claude, Cursor, Git
 ## Project Structure
 
 ```
-code-story-platform/
+code-tales-platform/
 ├── app/                      # Next.js App Router
 │   ├── api/                  # API routes
 │   │   ├── stories/          # Story CRUD & generation
@@ -330,82 +330,82 @@ The `stories.status` column uses these values:
 
 # Default target
 help:
-	@echo "Code Tales Platform - Available Commands"
-	@echo "========================================="
-	@echo ""
-	@echo "Development:"
-	@echo "  make install      - Install dependencies with pnpm"
-	@echo "  make dev          - Start development server (localhost:3000)"
-	@echo "  make lint         - Run ESLint"
-	@echo "  make clean        - Remove node_modules and .next"
-	@echo ""
-	@echo "Production:"
-	@echo "  make build        - Create production build"
-	@echo "  make start        - Start production server"
-	@echo ""
-	@echo "Docker:"
-	@echo "  make docker-build - Build Docker image"
-	@echo "  make docker-up    - Start with docker-compose"
-	@echo "  make docker-down  - Stop docker-compose"
-	@echo "  make docker-logs  - View container logs"
-	@echo ""
-	@echo "Database:"
-	@echo "  make db-types     - Generate TypeScript types from Supabase"
-	@echo ""
+        @echo "Code Tales Platform - Available Commands"
+        @echo "========================================="
+        @echo ""
+        @echo "Development:"
+        @echo "  make install      - Install dependencies with pnpm"
+        @echo "  make dev          - Start development server (localhost:3000)"
+        @echo "  make lint         - Run ESLint"
+        @echo "  make clean        - Remove node_modules and .next"
+        @echo ""
+        @echo "Production:"
+        @echo "  make build        - Create production build"
+        @echo "  make start        - Start production server"
+        @echo ""
+        @echo "Docker:"
+        @echo "  make docker-build - Build Docker image"
+        @echo "  make docker-up    - Start with docker-compose"
+        @echo "  make docker-down  - Stop docker-compose"
+        @echo "  make docker-logs  - View container logs"
+        @echo ""
+        @echo "Database:"
+        @echo "  make db-types     - Generate TypeScript types from Supabase"
+        @echo ""
 
 # ================================
 # Development
 # ================================
 
 install:
-	@echo "Installing dependencies..."
-	pnpm install
+        @echo "Installing dependencies..."
+        pnpm install
 
 dev:
-	@echo "Starting development server..."
-	pnpm dev
+        @echo "Starting development server..."
+        pnpm dev
 
 lint:
-	@echo "Running ESLint..."
-	pnpm lint
+        @echo "Running ESLint..."
+        pnpm lint
 
 clean:
-	@echo "Cleaning build artifacts..."
-	rm -rf node_modules .next .turbo
-	@echo "Done. Run 'make install' to reinstall dependencies."
+        @echo "Cleaning build artifacts..."
+        rm -rf node_modules .next .turbo
+        @echo "Done. Run 'make install' to reinstall dependencies."
 
 # ================================
 # Production
 # ================================
 
 build:
-	@echo "Creating production build..."
-	pnpm build
+        @echo "Creating production build..."
+        pnpm build
 
 start:
-	@echo "Starting production server..."
-	pnpm start
+        @echo "Starting production server..."
+        pnpm start
 
 # ================================
 # Docker
 # ================================
 
 docker-build:
-	@echo "Building Docker image..."
-	docker-compose build
+        @echo "Building Docker image..."
+        docker-compose build
 
 docker-up:
-	@echo "Starting containers..."
-	docker-compose up -d
-	@echo ""
-	@echo "Frontend available at: http://localhost:3001"
+        @echo "Starting containers..."
+        docker-compose up -d
+        @echo ""
+        @echo "Frontend available at: http://localhost:3001"
 
 docker-down:
-	@echo "Stopping containers..."
-	docker-compose down
+        @echo "Stopping containers..."
+        docker-compose down
 
 docker-logs:
-	docker-compose logs -f frontend
+        docker-compose logs -f frontend
 
 docker-restart: docker-down docker-up
 
@@ -414,33 +414,33 @@ docker-restart: docker-down docker-up
 # ================================
 
 db-types:
-	@echo "Generating TypeScript types from Supabase..."
-	@if [ -z "$$SUPABASE_PROJECT_ID" ]; then \
-		echo "Error: SUPABASE_PROJECT_ID environment variable not set"; \
-		echo "Usage: SUPABASE_PROJECT_ID=your_project_id make db-types"; \
-		exit 1; \
-	fi
-	npx supabase gen types typescript --project-id $$SUPABASE_PROJECT_ID > lib/database.types.ts
-	@echo "Types generated at lib/database.types.ts"
+        @echo "Generating TypeScript types from Supabase..."
+        @if [ -z "$$SUPABASE_PROJECT_ID" ]; then \
+                echo "Error: SUPABASE_PROJECT_ID environment variable not set"; \
+                echo "Usage: SUPABASE_PROJECT_ID=your_project_id make db-types"; \
+                exit 1; \
+        fi
+        npx supabase gen types typescript --project-id $$SUPABASE_PROJECT_ID > lib/database.types.ts
+        @echo "Types generated at lib/database.types.ts"
 
 # ================================
 # Quick Setup (for new developers)
 # ================================
 
 setup: install
-	@echo ""
-	@echo "Setup complete! Next steps:"
-	@echo "1. Copy .env.example to .env.local"
-	@echo "2. Fill in your Supabase and API credentials"
-	@echo "3. Run 'make dev' to start development"
-	@echo ""
+        @echo ""
+        @echo "Setup complete! Next steps:"
+        @echo "1. Copy .env.example to .env.local"
+        @echo "2. Fill in your Supabase and API credentials"
+        @echo "3. Run 'make dev' to start development"
+        @echo ""
 
 # ================================
 # CI/CD Helpers
 # ================================
 
 ci-check: lint build
-	@echo "CI checks passed!"
+        @echo "CI checks passed!"
 
 # ================================
 # Utility
@@ -448,6 +448,6 @@ ci-check: lint build
 
 # Check if required tools are installed
 check-deps:
-	@command -v pnpm >/dev/null 2>&1 || { echo "pnpm is required but not installed. Run: npm install -g pnpm"; exit 1; }
-	@command -v node >/dev/null 2>&1 || { echo "Node.js is required but not installed."; exit 1; }
-	@echo "All dependencies available!"
+        @command -v pnpm >/dev/null 2>&1 || { echo "pnpm is required but not installed. Run: npm install -g pnpm"; exit 1; }
+        @command -v node >/dev/null 2>&1 || { echo "Node.js is required but not installed."; exit 1; }
+        @echo "All dependencies available!"

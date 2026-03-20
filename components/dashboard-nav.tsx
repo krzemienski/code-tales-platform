@@ -149,7 +149,7 @@ export function DashboardNav({ user, profile, isDemo }: DashboardNavProps) {
           )}
 
           <a
-            href="https://github.com/krzemienski/code-story-platform"
+            href="https://github.com/krzemienski/code-tales-platform"
             target="_blank"
             rel="noopener noreferrer"
             className="hidden md:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -278,7 +278,7 @@ export function DashboardNav({ user, profile, isDemo }: DashboardNavProps) {
           ))}
 
           <a
-            href="https://github.com/krzemienski/code-story-platform"
+            href="https://github.com/krzemienski/code-tales-platform"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-muted-foreground"

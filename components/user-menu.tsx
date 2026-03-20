@@ -76,7 +76,7 @@ export function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className="text-zinc-300 focus:text-white focus:bg-zinc-800 cursor-pointer">
-          <Link href="/dashboard/stories">
+          <Link href="/dashboard">
             <Headphones className="w-4 h-4 mr-2" />
             My Stories
           </Link>

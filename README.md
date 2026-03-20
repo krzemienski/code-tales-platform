@@ -4,7 +4,7 @@
 
 Code Tales is an open-source platform that analyzes code repositories and generates engaging audio stories using AI. Perfect for understanding new codebases, onboarding developers, or experiencing the art of software architecture through sound.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/krzemienski/code-story-platform)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/krzemienski/code-tales-platform)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
@@ -165,7 +165,7 @@ Code Tales transforms any public GitHub repository into an audio experience. Whe
 ## Project Structure
 
 ```
-code-story-platform/
+code-tales-platform/
 ├── app/
 │   ├── api/
 │   │   ├── stories/
@@ -230,8 +230,8 @@ code-story-platform/
 
 ```bash
 # Clone and install
-git clone https://github.com/krzemienski/code-story-platform.git
-cd code-story-platform
+git clone https://github.com/krzemienski/code-tales-platform.git
+cd code-tales-platform
 make install
 
 # Set up environment
@@ -284,7 +284,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 ## Links
 
 - **Website**: [codetale.ai](https://codetale.ai)
-- **Repository**: [github.com/krzemienski/code-story-platform](https://github.com/krzemienski/code-story-platform)
+- **Repository**: [github.com/krzemienski/code-tales-platform](https://github.com/krzemienski/code-tales-platform)
 - **Documentation**: [CLAUDE.md](./CLAUDE.md)
 
 ---

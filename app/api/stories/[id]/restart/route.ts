@@ -2,8 +2,11 @@ import { db, stories, processingLogs } from "@/lib/db"
 import { eq, and } from "drizzle-orm"
 import { getAuthenticatedUser } from "@/lib/auth"
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id: storyId } = await params
+  if (!UUID_RE.test(storyId)) return Response.json({ error: "Invalid story ID" }, { status: 400 })
 
   const url = new URL(req.url)
   const baseUrl = url.origin

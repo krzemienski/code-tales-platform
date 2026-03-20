@@ -200,7 +200,7 @@ export default async function HomePage() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground" asChild>
-                <a href="https://github.com/krzemienski/code-story-platform" target="_blank" rel="noopener noreferrer">
+                <a href="https://github.com/krzemienski/code-tales-platform" target="_blank" rel="noopener noreferrer">
                   <Code className="h-4 w-4" />
                   View Source on GitHub
                 </a>
@@ -228,7 +228,7 @@ export default async function HomePage() {
               Documentation
             </Link>
             <a
-              href="https://github.com/krzemienski/code-story-platform"
+              href="https://github.com/krzemienski/code-tales-platform"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-foreground transition-colors"

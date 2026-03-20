@@ -131,7 +131,7 @@ export default async function DashboardPage() {
             </div>
           </div>
           <Button asChild className="bg-primary hover:bg-primary/90">
-            <Link href="/#generate">
+            <Link href="/dashboard/new">
               <Plus className="mr-2 h-4 w-4" />
               Create New Tale
             </Link>
@@ -277,7 +277,7 @@ export default async function DashboardPage() {
               <h3 className="mt-4 text-lg font-semibold text-foreground">No tales yet</h3>
               <p className="mt-2 text-muted-foreground">Transform your first code repository into an audio tale.</p>
               <Button asChild className="mt-6 bg-primary hover:bg-primary/90">
-                <Link href="/#generate">
+                <Link href="/dashboard/new">
                   <Plus className="mr-2 h-4 w-4" />
                   Create Your First Tale
                 </Link>

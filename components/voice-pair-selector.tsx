@@ -82,7 +82,7 @@ export function VoicePairSelector({
         if (!response.ok) throw new Error("Failed to fetch voices")
 
         const data = await response.json()
-        setVoices(data.all || [])
+        setVoices(data.voices || data.all || [])
         setRecommendedPairs(data.recommended || [])
       } catch (err) {
         console.error("Error fetching voices:", err)

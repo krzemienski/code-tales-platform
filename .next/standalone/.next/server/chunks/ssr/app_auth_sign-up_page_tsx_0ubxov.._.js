@@ -1,3 +1,0 @@
-module.exports=[87054,a=>{"use strict";var b=a.i(87924),c=a.i(72131);a.s(["default",0,function(){return(0,c.useEffect)(()=>{let a="/api/auth/login?return=/dashboard";window.top&&window.top!==window?window.top.location.href=a:window.location.href=a},[]),(0,b.jsx)("div",{className:"flex min-h-screen w-full flex-col items-center justify-center bg-background p-4",children:(0,b.jsx)("p",{className:"text-muted-foreground",children:"Redirecting to sign in..."})})}])}];
-
-//# sourceMappingURL=app_auth_sign-up_page_tsx_0ubxov.._.js.map

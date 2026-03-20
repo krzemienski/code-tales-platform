@@ -65,7 +65,7 @@ export function DashboardNav({ user, profile, isDemo }: DashboardNavProps) {
 
   const handleNewStory = (e: React.MouseEvent) => {
     e.preventDefault()
-    router.push("/#generate")
+    router.push("/dashboard/new")
     setMobileMenuOpen(false)
   }
 

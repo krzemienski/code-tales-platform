@@ -18,7 +18,7 @@ Guide the user to define their learning goals for this repository. Be helpful an
   const modelMessages = convertToModelMessages(messages as UIMessage[])
 
   const result = streamText({
-    model: "anthropic/claude-sonnet-4-20250514",
+    model: "anthropic/claude-sonnet-4-6",
     system: systemPrompt,
     messages: modelMessages,
     maxTokens: 500,

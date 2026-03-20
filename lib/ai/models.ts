@@ -47,32 +47,32 @@ export interface ModelConfiguration {
 // Available models with their configurations
 export const AI_MODELS: Record<string, ModelDefinition> = {
   // Anthropic Models
-  "anthropic/claude-sonnet-4-20250514": {
-    id: "anthropic/claude-sonnet-4-20250514",
+  "anthropic/claude-opus-4-6": {
+    id: "anthropic/claude-opus-4-6",
     provider: "anthropic",
-    displayName: "Claude Sonnet 4",
-    description: "Latest Claude model with excellent reasoning and creative capabilities",
+    displayName: "Claude Opus 4.6",
+    description: "Most capable Claude model with extended thinking for premium narrative quality",
     contextWindow: 200000,
     maxOutputTokens: 64000,
     capabilities: ["long-context", "creative", "analytical", "code-understanding"],
-    costPer1kInput: 0.003,
-    costPer1kOutput: 0.015,
+    costPer1kInput: 0.015,
+    costPer1kOutput: 0.075,
     recommendedFor: ["fiction", "documentary", "technical"],
     temperatureRange: { min: 0, max: 1, default: 0.7 },
     supportsStreaming: true,
     isAvailable: true,
   },
-  "anthropic/claude-3-5-haiku-20241022": {
-    id: "anthropic/claude-3-5-haiku-20241022",
+  "anthropic/claude-sonnet-4-6": {
+    id: "anthropic/claude-sonnet-4-6",
     provider: "anthropic",
-    displayName: "Claude 3.5 Haiku",
-    description: "Fast and cost-effective for simpler tasks",
+    displayName: "Claude Sonnet 4.6",
+    description: "Excellent balance of quality, speed, and cost for narrative generation",
     contextWindow: 200000,
-    maxOutputTokens: 8192,
-    capabilities: ["fast-inference", "cost-effective", "code-understanding", "creative"],
-    costPer1kInput: 0.0008,
-    costPer1kOutput: 0.004,
-    recommendedFor: ["podcast", "tutorial", "fiction", "documentary", "technical"],
+    maxOutputTokens: 64000,
+    capabilities: ["long-context", "creative", "analytical", "code-understanding", "fast-inference"],
+    costPer1kInput: 0.003,
+    costPer1kOutput: 0.015,
+    recommendedFor: ["fiction", "documentary", "technical", "podcast", "tutorial"],
     temperatureRange: { min: 0, max: 1, default: 0.7 },
     supportsStreaming: true,
     isAvailable: true,
@@ -219,8 +219,9 @@ export function recommendModel(criteria: ModelSelectionCriteria): ModelDefinitio
       score += 25
     }
     if (criteria.prioritize === "quality") {
-      // Prefer higher-tier models
-      if (model.id.includes("claude-sonnet") || model.id.includes("gpt-4o") || model.id.includes("o1")) {
+      if (model.id.includes("claude-opus")) {
+        score += 30
+      } else if (model.id.includes("claude-sonnet") || model.id.includes("gpt-4o") || model.id.includes("o1")) {
         score += 20
       }
     }
@@ -230,7 +231,7 @@ export function recommendModel(criteria: ModelSelectionCriteria): ModelDefinitio
 
   // Sort by score and return the best
   scored.sort((a, b) => b.score - a.score)
-  return scored[0]?.model || AI_MODELS["anthropic/claude-sonnet-4-20250514"]
+  return scored[0]?.model || AI_MODELS["anthropic/claude-sonnet-4-6"] || AI_MODELS["anthropic/claude-opus-4-6"]
 }
 
 /**

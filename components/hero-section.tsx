@@ -17,15 +17,7 @@ export function HeroSection() {
 
   const handleGenerate = () => {
     if (!isValid) return
-    // Store the URL in sessionStorage and scroll to generator
-    sessionStorage.setItem("pendingRepoUrl", url.trim())
-    const generatorElement = document.getElementById("generate")
-    if (generatorElement) {
-      generatorElement.scrollIntoView({ behavior: "smooth" })
-    } else {
-      // If not on home page, redirect to home with the URL
-      window.location.href = `/?repo=${encodeURIComponent(url.trim())}#generate`
-    }
+    window.location.href = `/dashboard/new?url=${encodeURIComponent(url.trim())}`
   }
 
   return (

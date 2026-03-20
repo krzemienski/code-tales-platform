@@ -24,16 +24,7 @@ export function Navbar() {
 
   const handleCreateTale = (e: React.MouseEvent) => {
     e.preventDefault()
-    if (pathname === "/") {
-      // Already on home page, just scroll to section
-      const element = document.getElementById("generate")
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" })
-      }
-    } else {
-      // Navigate to home page with hash
-      router.push("/#generate")
-    }
+    router.push("/dashboard/new")
     setMobileMenuOpen(false)
   }
 

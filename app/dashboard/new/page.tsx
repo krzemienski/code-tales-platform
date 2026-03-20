@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, ArrowRight, Zap, MessageSquare, Loader2, Check, Volume2, Sparkles, Settings2, Save, Clock, Calendar, Plus } from "lucide-react"
+import { ArrowLeft, ArrowRight, Zap, MessageSquare, Loader2, Check, Sparkles, Settings2, Save, Clock, Calendar, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -13,9 +13,10 @@ import { RepoInput } from "@/components/repo-input"
 import { RepoTreePreview } from "@/components/repo-tree-preview"
 import { IntentChat } from "@/components/intent-chat"
 import { GenerationEstimate } from "@/components/generation-estimate"
-import { VoicePreviewButton } from "@/components/voice-preview-button"
 import { Orb } from "@/components/ui/orb"
 import { ShimmeringText } from "@/components/ui/shimmering-text"
+import { VoiceBrowser } from "@/components/voice-browser"
+import { TTSSettings, useTTSConfig, getStyleDefaults, type TTSConfig } from "@/components/tts-settings"
 import { useAuth } from "@/lib/auth/use-auth"
 import {
   ContentGenerationFramework,
@@ -125,43 +126,6 @@ const EXPERTISE_LEVELS = [
   { id: "expert", label: "Expert", description: "Dense information, no hand-holding" },
 ]
 
-const VOICE_OPTIONS = [
-  {
-    id: "21m00Tcm4TlvDq8ikWAM",
-    name: "Rachel",
-    description: "Warm, expressive - great for fiction",
-    category: "fiction",
-  },
-  {
-    id: "pNInz6obpgDQGcFmaJgB",
-    name: "Adam",
-    description: "Deep, authoritative - epic narratives",
-    category: "fiction",
-  },
-  { id: "onwK4e9ZLuTAKqWW03F9", name: "Daniel", description: "British, storyteller voice", category: "fiction" },
-  {
-    id: "29vD33N1CtxCmqQRPOHJ",
-    name: "Drew",
-    description: "Authoritative, documentary style",
-    category: "documentary",
-  },
-  {
-    id: "ErXwobaYiN019PkySvjV",
-    name: "Antoni",
-    description: "Clear, precise - technical content",
-    category: "technical",
-  },
-  { id: "VR6AewLTigWG4xSOukaG", name: "Arnold", description: "Professional, crisp delivery", category: "technical" },
-  {
-    id: "EXAVITQu4vr4xnSDxMaL",
-    name: "Bella",
-    description: "Friendly, approachable - tutorials",
-    category: "tutorial",
-  },
-  { id: "MF3mGyEYCl7XYWbV9V6O", name: "Elli", description: "Conversational, podcast style", category: "podcast" },
-  { id: "jBpfuIE2acCO8z3wKNLl", name: "Gigi", description: "Energetic, engaging presenter", category: "podcast" },
-]
-
 const RECOMMENDED_COMBINATIONS = ContentGenerationFramework.getRecommendedCombinations()
 
 export default function NewStoryPage() {
@@ -185,6 +149,7 @@ export default function NewStoryPage() {
   const [duration, setDuration] = useState("standard")
   const [expertise, setExpertise] = useState("intermediate")
   const [voiceId, setVoiceId] = useState("21m00Tcm4TlvDq8ikWAM")
+  const ttsConfig = useTTSConfig(narrativeStyle)
   const [intent, setIntent] = useState("")
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -203,6 +168,12 @@ export default function NewStoryPage() {
     const draftIdParam = searchParams.get("draft")
     if (draftIdParam) {
       loadDraft(draftIdParam)
+      return
+    }
+    const urlParam = searchParams.get("url")
+    if (urlParam && !repoInfo) {
+      setRepoUrl(urlParam)
+      handleRepoSubmit(urlParam)
     }
   }, [searchParams])
 
@@ -241,6 +212,10 @@ export default function NewStoryPage() {
         
         const voice = draft.voiceConfig as Record<string, unknown> || {}
         if (voice.voiceId) setVoiceId(voice.voiceId as string)
+        if (voice.ttsConfig) {
+          const savedTts = voice.ttsConfig as TTSConfig
+          ttsConfig.updateConfig(savedTts)
+        }
         
         if (draft.scheduledAt) {
           const date = new Date(draft.scheduledAt)
@@ -282,6 +257,7 @@ export default function NewStoryPage() {
         modelConfig: {},
         voiceConfig: {
           voiceId,
+          ttsConfig: ttsConfig.config,
         },
         scheduledAt: showSchedule && scheduledDate && scheduledTime
           ? new Date(`${scheduledDate}T${scheduledTime}`).toISOString()
@@ -319,10 +295,12 @@ export default function NewStoryPage() {
     setPacing(config.pacing || "moderate")
     setToneIntensity(config.toneIntensity || "moderate")
 
-    const voiceForStyle = VOICE_OPTIONS.find((v) => v.category === config.primary)
-    if (voiceForStyle) {
-      setVoiceId(voiceForStyle.id)
-    }
+    const defaults = getStyleDefaults(config.primary)
+    ttsConfig.updateConfig({
+      stability: defaults.stability,
+      similarityBoost: defaults.similarityBoost,
+      style: defaults.style,
+    })
   }
 
   const validateConfiguration = () => {
@@ -404,6 +382,16 @@ export default function NewStoryPage() {
         throw new Error("Not authenticated")
       }
 
+      const currentTtsConfig: TTSConfig = {
+        ttsModelId: ttsConfig.config.ttsModelId,
+        stability: ttsConfig.config.stability,
+        similarityBoost: ttsConfig.config.similarityBoost,
+        style: ttsConfig.config.style,
+        useSpeakerBoost: ttsConfig.config.useSpeakerBoost,
+        outputFormat: ttsConfig.config.outputFormat,
+        language: ttsConfig.config.language,
+      }
+
       const createResponse = await fetch("/api/stories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -414,6 +402,7 @@ export default function NewStoryPage() {
           targetDurationMinutes: DURATION_OPTIONS.find((d) => d.id === duration)?.minutes || 15,
           expertiseLevel: expertise,
           intent: intent || undefined,
+          ttsConfig: currentTtsConfig,
         }),
       })
 
@@ -750,30 +739,13 @@ export default function NewStoryPage() {
 
           <div>
             <label className="mb-3 block text-sm font-medium">Voice</label>
-            <div className="grid gap-3 sm:grid-cols-3">
-              {VOICE_OPTIONS.filter((v) => v.category === narrativeStyle || !narrativeStyle)
-                .slice(0, 6)
-                .map((voice) => (
-                  <button
-                    key={voice.id}
-                    onClick={() => setVoiceId(voice.id)}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg border border-border bg-card p-3 text-left transition-colors hover:border-primary",
-                      voiceId === voice.id && "border-primary bg-primary/5",
-                    )}
-                  >
-                    <Volume2 className="h-4 w-4 text-muted-foreground" />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium">{voice.name}</p>
-                        <VoicePreviewButton voiceId={voice.id} />
-                      </div>
-                      <p className="text-xs text-muted-foreground">{voice.description}</p>
-                    </div>
-                  </button>
-                ))}
-            </div>
+            <VoiceBrowser
+              selectedVoiceId={voiceId}
+              onVoiceSelect={setVoiceId}
+            />
           </div>
+
+          <TTSSettings config={ttsConfig.config} onChange={ttsConfig.updateConfig} />
 
           <div>
             <label className="mb-3 block text-sm font-medium">Story Length</label>

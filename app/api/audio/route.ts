@@ -66,10 +66,14 @@ export async function GET(request: NextRequest) {
 
         const partialBuffer = buffer.subarray(start, end + 1);
 
+        const partialContentType = path.endsWith(".pcm") ? "audio/pcm"
+          : path.endsWith(".ulaw") ? "audio/basic"
+          : "audio/mpeg";
+
         return new NextResponse(partialBuffer, {
           status: 206,
           headers: {
-            "Content-Type": "audio/mpeg",
+            "Content-Type": partialContentType,
             "Content-Length": contentLength.toString(),
             "Content-Range": `bytes ${start}-${end}/${fileSize}`,
             "Accept-Ranges": "bytes",
@@ -79,10 +83,14 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    const contentType = path.endsWith(".pcm") ? "audio/pcm"
+      : path.endsWith(".ulaw") ? "audio/basic"
+      : "audio/mpeg";
+
     return new NextResponse(buffer, {
       status: 200,
       headers: {
-        "Content-Type": "audio/mpeg",
+        "Content-Type": contentType,
         "Content-Length": fileSize.toString(),
         "Accept-Ranges": "bytes",
         "Cache-Control": "public, max-age=31536000",

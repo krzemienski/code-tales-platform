@@ -458,22 +458,79 @@ export async function downloadProjectAudio(
 // VOICE & MODEL DISCOVERY
 // =====================================================
 
-// List available voices
 export async function listVoices(): Promise<{ voices: ElevenLabsVoice[] }> {
   const apiKey = getApiKey()
+  const allVoices: ElevenLabsVoice[] = []
 
-  const response = await fetch(`${ELEVENLABS_API_BASE}/voices`, {
-    headers: {
-      "xi-api-key": apiKey,
+  const accountVoicesResponse = await fetch(
+    `${ELEVENLABS_API_BASE}/voices?show_legacy=true`,
+    {
+      headers: { "xi-api-key": apiKey },
     },
-  })
+  )
 
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`Failed to list voices: ${response.status} - ${error}`)
+  if (!accountVoicesResponse.ok) {
+    const error = await accountVoicesResponse.text()
+    throw new Error(`Failed to list voices: ${accountVoicesResponse.status} - ${error}`)
   }
 
-  return response.json()
+  const accountData: { voices: ElevenLabsVoice[] } = await accountVoicesResponse.json()
+  allVoices.push(...accountData.voices)
+
+  const seenIds = new Set(allVoices.map(v => v.voice_id))
+
+  let nextCursor: string | undefined
+  const MAX_LIBRARY_PAGES = 100
+  for (let page = 0; page < MAX_LIBRARY_PAGES; page++) {
+    const params = new URLSearchParams({
+      page_size: "100",
+      sort: "trending",
+    })
+    if (nextCursor) {
+      params.set("next_cursor", nextCursor)
+    }
+
+    const libraryResponse = await fetch(
+      `${ELEVENLABS_API_BASE}/shared-voices?${params.toString()}`,
+      {
+        headers: { "xi-api-key": apiKey },
+      },
+    )
+
+    if (!libraryResponse.ok) break
+
+    const libraryData: {
+      voices: Array<{
+        voice_id: string
+        name: string
+        category: string
+        description: string
+        preview_url: string
+        labels: Record<string, string>
+      }>
+      next_cursor?: string
+      has_more?: boolean
+    } = await libraryResponse.json()
+
+    for (const v of libraryData.voices) {
+      if (!seenIds.has(v.voice_id)) {
+        seenIds.add(v.voice_id)
+        allVoices.push({
+          voice_id: v.voice_id,
+          name: v.name,
+          category: v.category || "community",
+          description: v.description || "",
+          preview_url: v.preview_url || "",
+          labels: v.labels || {},
+        })
+      }
+    }
+
+    nextCursor = libraryData.next_cursor
+    if (!libraryData.has_more || !nextCursor) break
+  }
+
+  return { voices: allVoices }
 }
 
 // List available models

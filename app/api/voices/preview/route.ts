@@ -1,13 +1,51 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getAuthenticatedUser } from "@/lib/auth"
 
 const audioCache = new Map<string, ArrayBuffer>()
 
 const DEFAULT_SAMPLE_TEXT = "Welcome to Code Tales. Let me tell you a story about your code."
 
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
+const RATE_LIMIT_MAX = 20
+const RATE_LIMIT_WINDOW_MS = 60_000
+
+const PREVIEW_TEXT_MAX_LENGTH = 200
+
+function checkRateLimit(userId: string): { allowed: boolean; retryAfterMs: number } {
+  const now = Date.now()
+  const entry = rateLimitMap.get(userId)
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS })
+    return { allowed: true, retryAfterMs: 0 }
+  }
+  if (entry.count >= RATE_LIMIT_MAX) {
+    return { allowed: false, retryAfterMs: entry.resetAt - now }
+  }
+  entry.count++
+  return { allowed: true, retryAfterMs: 0 }
+}
+
 export async function GET(request: NextRequest) {
+  const user = await getAuthenticatedUser()
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  const { allowed, retryAfterMs } = checkRateLimit(user.id)
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Please wait before previewing more voices." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(Math.ceil(retryAfterMs / 1000)) },
+      }
+    )
+  }
+
   const searchParams = request.nextUrl.searchParams
   const voiceId = searchParams.get("voiceId")
-  const text = searchParams.get("text") || DEFAULT_SAMPLE_TEXT
+  const rawText = searchParams.get("text") || DEFAULT_SAMPLE_TEXT
+  const text = rawText.slice(0, PREVIEW_TEXT_MAX_LENGTH)
 
   if (!voiceId) {
     return NextResponse.json({ error: "voiceId is required" }, { status: 400 })

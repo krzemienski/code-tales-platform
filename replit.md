@@ -51,12 +51,18 @@ The platform supports two primary generation pipelines:
 ### Key Components
 
 #### Frontend Pages
-- `/` - Landing page with GitHub URL input
+- `/` - Landing page with GitHub URL input → navigates to `/dashboard/new?url=...`
 - `/discover` - Browse public community stories
 - `/dashboard` - User dashboard with stories, drafts, analytics
-- `/dashboard/new` - Story creation wizard
+- `/dashboard/new` - Story creation wizard (accepts `?url=` and `?draft=` params)
 - `/story/[id]` - Story playback page
-- `/auth/login` - Replit Auth login
+- `/auth/login` - Replit Auth login (accepts `?redirect=` for return path)
+
+#### Middleware
+- `middleware.ts` - Intercepts `/dashboard/*` routes, checks `replit_auth_session` cookie, redirects unauthenticated users to `/auth/login?redirect=<full_path_with_query>` preserving URL parameters
+
+#### Dev Auth
+- `POST /api/auth/dev-session` - Creates dev session in non-production (disabled in production)
 
 #### API Endpoints
 | Category | Endpoints |
@@ -155,6 +161,7 @@ The legacy `auth_with_repl_site` system sent JWTs signed with key `prod:1` (ES25
 | SESSION_SECRET | HMAC secret for session token signing |
 
 ## Recent Changes
+- **2026-03-20**: ElevenLabs Full Voice & Feature Integration — Replaced hardcoded 4-voice array with dynamic VoiceBrowser component (search, category/gender filters, inline preview). Added TTSSettings component with TTS model selector (Flash v2.5, Multilingual v2, v3), voice settings sliders (stability, similarity_boost, style, speaker_boost), output format picker (9 formats), and language selector (29 languages). Updated /api/voices with 5-minute cache and query param filtering. Generation pipeline now reads user TTS config from story.modelConfig.ttsConfig and passes it through to ElevenLabs API.
 - **2026-03-19**: Full functional audit completed. Fixed `/api/stories/[id]/download` endpoint — was crashing with `ERR_INVALID_URL` because audio chunks are stored as Object Storage paths (`.private/audio/...`), not URLs; now uses `getFileStream()` from `@/lib/storage`. Fixed demo mode cookie name mismatch — `setDemoMode()` set `codetales_demo_mode` but dashboard checked `codetales_demo`; now consistent. All auth flows verified (OIDC PKCE, dev auth bypass, session lifecycle, logout). All pages and API endpoints audited with authenticated user.
 - **2026-03-19**: Migrated auth from broken `auth_with_repl_site` (failing with `unknown keyID prod:1`) to Replit OIDC (`replit.com/oidc`) using Authorization Code + PKCE flow via openid-client v6. Added dev auth bypass for iOS (`X-Dev-Auth-Token` header or `Authorization: Bearer <token>`). Client auto-registered via RFC 7591 dynamic registration.
 - **2026-01-12**: Enhanced landing page with story discovery features - filter bar (fiction/documentary/tutorial/technical/comedy), search by title/repo, story count indicators

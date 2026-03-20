@@ -74,7 +74,10 @@ export async function uploadAudioChunk(
   const bucketId = getBucketId();
   const privateDir = getPrivateObjectDir();
   
-  const objectPath = `${privateDir}/audio/${storyId}/chunk_${String(chunkIndex).padStart(3, "0")}.mp3`;
+  const ext = contentType === "audio/pcm" ? ".pcm"
+    : contentType === "audio/basic" ? ".ulaw"
+    : ".mp3";
+  const objectPath = `${privateDir}/audio/${storyId}/chunk_${String(chunkIndex).padStart(3, "0")}${ext}`;
   const bucket = storageClient.bucket(bucketId);
   const file = bucket.file(objectPath);
 
@@ -98,7 +101,10 @@ export async function uploadCombinedAudio(
   const bucketId = getBucketId();
   const privateDir = getPrivateObjectDir();
   
-  const objectPath = `${privateDir}/audio/${storyId}/complete.mp3`;
+  const ext = contentType === "audio/pcm" ? ".pcm"
+    : contentType === "audio/basic" ? ".ulaw"
+    : ".mp3";
+  const objectPath = `${privateDir}/audio/${storyId}/complete${ext}`;
   const bucket = storageClient.bucket(bucketId);
   const file = bucket.file(objectPath);
 

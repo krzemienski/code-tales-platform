@@ -73,7 +73,7 @@ export const DEFAULT_PIPELINE_CONFIG: Omit<PipelineConfig, "source"> = {
   auto_assign_voices: true,
   custom_instructions: DEFAULT_CUSTOM_INSTRUCTIONS,
   production_settings: DEFAULT_PRODUCTION_SETTINGS,
-  claude_model: "claude-sonnet-4-20250514",
+  claude_model: "claude-sonnet-4-6",
   max_concurrent_agents: 5,
   agent_temperature: 0.7,
   chunk_size: 100000,

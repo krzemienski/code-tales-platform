@@ -20,6 +20,35 @@ interface GenerateRequest {
   }
 }
 
+interface StoredModelConfig {
+  modelId?: string
+  priority?: string
+  ttsConfig?: {
+    ttsModelId?: string
+    stability?: number
+    similarityBoost?: number
+    style?: number
+    useSpeakerBoost?: boolean
+    outputFormat?: string
+    language?: string
+  }
+}
+
+interface TTSRequestBody {
+  text: string
+  model_id: string
+  voice_settings: {
+    stability: number
+    similarity_boost: number
+    style: number
+    use_speaker_boost: boolean
+  }
+  previous_text?: string
+  next_text?: string
+  apply_text_normalization: string
+  language_code?: string
+}
+
 function splitTextIntoChunks(text: string, maxChars = 4000): string[] {
   const chunks: string[] = []
   let remaining = text
@@ -117,7 +146,8 @@ export async function POST(req: Request) {
     }
 
     const targetMinutes = story.targetDurationMinutes || 15
-    let selectedModelId = modelConfig?.modelId || (story.modelConfig as any)?.modelId
+    const storedModelConf = (story.modelConfig || {}) as StoredModelConfig
+    let selectedModelId = modelConfig?.modelId || storedModelConf.modelId
 
     // If no model specified, auto-recommend based on content
     if (!selectedModelId || !AI_MODELS[selectedModelId]?.isAvailable) {
@@ -125,7 +155,7 @@ export async function POST(req: Request) {
         narrativeStyle: story.narrativeStyle,
         expertiseLevel: story.expertiseLevel || "intermediate",
         targetDurationMinutes: targetMinutes,
-        prioritize: (story.modelConfig as any)?.priority || "quality",
+        prioritize: storedModelConf.priority || "quality",
       })
       selectedModelId = recommended.id
       console.log("[v0] Auto-selected model:", selectedModelId)
@@ -443,7 +473,7 @@ BEGIN YOUR ${targetMinutes}-MINUTE ${story.narrativeStyle.toUpperCase()} NARRATI
 
       // Use Anthropic for chapter parsing as well
       const { text: chaptersJson } = await generateText({
-        model: anthropic("claude-3-5-haiku-20241022"),
+        model: anthropic("claude-sonnet-4-6"),
         prompt: `Given this narrative script, create a JSON array of chapters with titles and approximate timestamps.
 
 SCRIPT:
@@ -520,12 +550,26 @@ Output ONLY valid JSON, no other text:`,
       if (elevenLabsKey) {
         const voiceId = story.voiceId || "21m00Tcm4TlvDq8ikWAM"
 
-        const modelId = "eleven_flash_v2_5"
-        const maxChunkSize = 10000 // Larger chunks for fewer API calls
+        const storedConfig = storedModelConf.ttsConfig || {}
+        const ttsModelId = storedConfig.ttsModelId || "eleven_flash_v2_5"
+        const ttsOutputFormat = storedConfig.outputFormat || "mp3_44100_128"
+        const ttsVoiceSettings = {
+          stability: storedConfig.stability ?? (story.narrativeStyle === "fiction" ? 0.35 : 0.5),
+          similarity_boost: storedConfig.similarityBoost ?? 0.8,
+          style: storedConfig.style ?? (story.narrativeStyle === "fiction" ? 0.15 : 0),
+          use_speaker_boost: storedConfig.useSpeakerBoost ?? true,
+        }
+        const ttsLanguage = storedConfig.language || undefined
+
+        const modelId = ttsModelId
+        const maxChunkSize = 10000
 
         await log.synthesizer(storyId, "Initializing ElevenLabs voice synthesis", {
           voice: voiceId,
           model: modelId,
+          outputFormat: ttsOutputFormat,
+          voiceSettings: ttsVoiceSettings,
+          language: ttsLanguage,
           totalScriptLength: script.length,
         })
 
@@ -614,33 +658,25 @@ Output ONLY valid JSON, no other text:`,
               })
               .where(eq(stories.id, storyId))
 
+            const ttsBody: TTSRequestBody = {
+              text: chunk,
+              model_id: modelId,
+              voice_settings: ttsVoiceSettings,
+              previous_text: i > 0 ? scriptChunks[i - 1].slice(-1000) : undefined,
+              next_text: i < scriptChunks.length - 1 ? scriptChunks[i + 1].slice(0, 500) : undefined,
+              apply_text_normalization: "auto",
+              language_code: ttsLanguage && ttsLanguage !== "en" ? ttsLanguage : undefined,
+            }
+
             const audioResponse = await fetch(
-              `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
+              `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=${ttsOutputFormat}`,
               {
                 method: "POST",
                 headers: {
                   "xi-api-key": elevenLabsKey,
                   "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                  text: chunk,
-                  model_id: modelId,
-                  voice_settings: {
-                    // Lower stability for more expressive fiction narration
-                    stability: story.narrativeStyle === "fiction" ? 0.35 : 0.5,
-                    // High similarity for consistent voice
-                    similarity_boost: 0.8,
-                    // Slight style exaggeration for fiction
-                    style: story.narrativeStyle === "fiction" ? 0.15 : 0,
-                    // Enable speaker boost for better voice matching
-                    use_speaker_boost: true,
-                  },
-                  // Context for better continuity between chunks
-                  previous_text: i > 0 ? scriptChunks[i - 1].slice(-1000) : undefined,
-                  next_text: i < scriptChunks.length - 1 ? scriptChunks[i + 1].slice(0, 500) : undefined,
-                  // Enable text normalization for proper pronunciation
-                  apply_text_normalization: "auto",
-                }),
+                body: JSON.stringify(ttsBody),
               },
             )
 
@@ -683,18 +719,23 @@ Output ONLY valid JSON, no other text:`,
             console.log(`[v0] Uploading chunk ${chunkNum}, size: ${buffer.byteLength} bytes`)
 
             try {
-              const chunkUrl = await uploadAudioChunk(buffer, storyId, chunkNum, "audio/mpeg")
+              const audioMimeType = ttsOutputFormat.startsWith("mp3") ? "audio/mpeg"
+                : ttsOutputFormat.startsWith("pcm") ? "audio/pcm"
+                : ttsOutputFormat.startsWith("ulaw") ? "audio/basic"
+                : "audio/mpeg"
+              const chunkUrl = await uploadAudioChunk(buffer, storyId, chunkNum, audioMimeType)
               chapterAudioUrls.push(chunkUrl)
               console.log(`[v0] Chunk ${chunkNum} uploaded: ${chunkUrl}`)
-            } catch (uploadError: any) {
+            } catch (uploadError) {
+              const errMsg = uploadError instanceof Error ? uploadError.message : String(uploadError)
               console.error(`[v0] Chunk ${chunkNum} upload error:`, uploadError)
               await log.synthesizer(
                 storyId,
                 `Chunk ${chunkNum} upload failed`,
-                { error: uploadError.message },
+                { error: errMsg },
                 "error",
               )
-              throw new Error(`Failed to upload chunk ${chunkNum}: ${uploadError.message}`)
+              throw new Error(`Failed to upload chunk ${chunkNum}: ${errMsg}`)
             }
           }
 

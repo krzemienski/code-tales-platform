@@ -213,7 +213,7 @@ function EmptyState({ searchQuery }: { searchQuery?: string }) {
         {searchQuery ? "Try a different search term" : "Be the first to create a code story!"}
       </p>
       <Button asChild className="bg-primary hover:bg-primary/90">
-        <Link href={searchQuery ? "/discover" : "/#generate"}>{searchQuery ? "Clear Search" : "Create Story"}</Link>
+        <Link href={searchQuery ? "/discover" : "/dashboard/new"}>{searchQuery ? "Clear Search" : "Create Story"}</Link>
       </Button>
     </div>
   )

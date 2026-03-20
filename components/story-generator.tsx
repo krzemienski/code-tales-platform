@@ -14,6 +14,8 @@ import { Waveform } from "@/components/ui/waveform"
 import { ProcessingLogs } from "@/components/processing-logs"
 import { GenerationConfigPanel, useGenerationConfig } from "@/components/generation-config"
 import { GenerationModeSelector } from "@/components/generation-mode-selector"
+import { VoiceBrowser } from "@/components/voice-browser"
+import { TTSSettings, useTTSConfig, getStyleDefaults } from "@/components/tts-settings"
 import { AI_MODELS, recommendModel } from "@/lib/ai/models"
 import type { GenerationMode, GenerationModeConfig } from "@/lib/generation/modes"
 
@@ -28,11 +30,11 @@ interface RepoInfo {
 }
 
 const STYLES = [
-  { id: "documentary", name: "Documentary", emoji: "📰", desc: "Factual, authoritative" },
-  { id: "tutorial", name: "Tutorial", emoji: "📚", desc: "Step-by-step teaching" },
-  { id: "podcast", name: "Podcast", emoji: "🎙️", desc: "Casual, conversational" },
-  { id: "fiction", name: "Fiction", emoji: "🎭", desc: "Code as characters" },
-  { id: "technical", name: "Technical", emoji: "⚙️", desc: "Dense, expert-level" },
+  { id: "documentary", name: "Documentary", emoji: "\u{1F4F0}", desc: "Factual, authoritative" },
+  { id: "tutorial", name: "Tutorial", emoji: "\u{1F4DA}", desc: "Step-by-step teaching" },
+  { id: "podcast", name: "Podcast", emoji: "\u{1F399}\u{FE0F}", desc: "Casual, conversational" },
+  { id: "fiction", name: "Fiction", emoji: "\u{1F3AD}", desc: "Code as characters" },
+  { id: "technical", name: "Technical", emoji: "\u2699\u{FE0F}", desc: "Dense, expert-level" },
 ]
 
 const DURATIONS = [
@@ -40,13 +42,6 @@ const DURATIONS = [
   { id: "standard", minutes: 10, label: "10 min" },
   { id: "extended", minutes: 15, label: "15 min" },
   { id: "deep", minutes: 20, label: "20 min" },
-]
-
-const VOICES = [
-  { id: "21m00Tcm4TlvDq8ikWAM", name: "Rachel", desc: "Warm, storyteller" },
-  { id: "29vD33N1CtxCmqQRPOHJ", name: "Drew", desc: "Authoritative" },
-  { id: "EXAVITQu4vr4xnSDxMaL", name: "Bella", desc: "Friendly" },
-  { id: "ErXwobaYiN019PkySvjV", name: "Antoni", desc: "Clear, precise" },
 ]
 
 export function StoryGenerator() {
@@ -57,7 +52,6 @@ export function StoryGenerator() {
   const [isValidating, setIsValidating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Options
   const [style, setStyle] = useState("documentary")
   const [duration, setDuration] = useState("standard")
   const [voice, setVoice] = useState("21m00Tcm4TlvDq8ikWAM")
@@ -73,13 +67,18 @@ export function StoryGenerator() {
   })
 
   const [generationConfig, setGenerationConfig] = useGenerationConfig()
+  const { config: ttsConfig, updateConfig: updateTTSConfig } = useTTSConfig(style)
 
-  // Generation state
   const [storyId, setStoryId] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
   const [progressMessage, setProgressMessage] = useState("")
   const [isComplete, setIsComplete] = useState(false)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    const defaults = getStyleDefaults(style)
+    updateTTSConfig(defaults)
+  }, [style])
 
   useEffect(() => {
     if (generationConfig.autoSelectModel) {
@@ -91,7 +90,7 @@ export function StoryGenerator() {
         prioritize: generationConfig.priority,
       })
       if (recommended.id !== generationConfig.modelId) {
-        setGenerationConfig((prev) => ({ ...prev, modelId: recommended.id }))
+        setGenerationConfig({ ...generationConfig, modelId: recommended.id })
       }
     }
   }, [
@@ -146,7 +145,6 @@ export function StoryGenerator() {
     try {
       const durationMinutes = DURATIONS.find((d) => d.id === duration)?.minutes || 10
 
-      // Create repository record via API
       const repoResponse = await fetch("/api/repositories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -167,7 +165,6 @@ export function StoryGenerator() {
 
       const { data: repo } = await repoResponse.json()
 
-      // Create story record via API
       const storyResponse = await fetch("/api/stories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -186,6 +183,15 @@ export function StoryGenerator() {
               modelId: generationConfig.modelId,
               temperature: generationConfig.temperature,
               priority: generationConfig.priority,
+            },
+            ttsConfig: {
+              ttsModelId: ttsConfig.ttsModelId,
+              stability: ttsConfig.stability,
+              similarityBoost: ttsConfig.similarityBoost,
+              style: ttsConfig.style,
+              useSpeakerBoost: ttsConfig.useSpeakerBoost,
+              outputFormat: ttsConfig.outputFormat,
+              language: ttsConfig.language,
             },
           },
         }),
@@ -277,7 +283,6 @@ export function StoryGenerator() {
 
   return (
     <Card className="overflow-hidden">
-      {/* Input Step */}
       {step === "input" && (
         <div className="p-6 sm:p-8">
           <div className="flex flex-col sm:flex-row gap-3">
@@ -305,7 +310,6 @@ export function StoryGenerator() {
           </div>
           {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
 
-          {/* Example repos */}
           <div className="mt-6 flex flex-wrap gap-2">
             <span className="text-xs text-muted-foreground">Try:</span>
             {["facebook/react", "vercel/next.js", "openai/whisper"].map((repo) => (
@@ -321,10 +325,8 @@ export function StoryGenerator() {
         </div>
       )}
 
-      {/* Options Step */}
       {step === "options" && repoInfo && (
         <div className="p-6 sm:p-8 space-y-6">
-          {/* Repo info */}
           <div className="flex items-start gap-4 p-4 rounded-lg bg-secondary/30">
             <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
               <Github className="h-6 w-6 text-primary" />
@@ -342,14 +344,12 @@ export function StoryGenerator() {
           </div>
 
           <GenerationModeSelector
-            mode={generationMode}
-            config={modeConfig}
+            selectedMode={generationMode}
             onModeChange={setGenerationMode}
-            onConfigChange={setModeConfig}
-            narrativeStyle={style}
+            compareEnabled={false}
+            onCompareChange={() => {}}
           />
 
-          {/* Style selection */}
           <div>
             <label className="text-sm font-medium mb-3 block">Narrative Style</label>
             <div className="grid grid-cols-5 gap-2">
@@ -369,7 +369,6 @@ export function StoryGenerator() {
             </div>
           </div>
 
-          {/* Duration selection */}
           <div>
             <label className="text-sm font-medium mb-3 block">Duration</label>
             <div className="flex gap-2">
@@ -405,39 +404,29 @@ export function StoryGenerator() {
             />
           </div>
 
-          {/* Advanced options toggle */}
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ChevronDown className={cn("h-4 w-4 transition-transform", showAdvanced && "rotate-180")} />
-            Advanced options
+            Voice & Audio Settings
           </button>
 
           {showAdvanced && (
-            <div className="space-y-4 pt-2">
-              <div>
-                <label className="text-sm font-medium mb-3 block">Voice</label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {VOICES.map((v) => (
-                    <button
-                      key={v.id}
-                      onClick={() => setVoice(v.id)}
-                      className={cn(
-                        "p-3 rounded-lg border text-left transition-all",
-                        voice === v.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50",
-                      )}
-                    >
-                      <span className="text-sm font-medium block">{v.name}</span>
-                      <span className="text-xs text-muted-foreground">{v.desc}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <div className="space-y-6 pt-2">
+              <VoiceBrowser
+                selectedVoiceId={voice}
+                onVoiceSelect={(voiceId) => setVoice(voiceId)}
+              />
+
+              <TTSSettings
+                config={ttsConfig}
+                onChange={updateTTSConfig}
+                narrativeStyle={style}
+              />
             </div>
           )}
 
-          {/* Generate button */}
           <div className="flex gap-3 pt-4">
             <Button variant="outline" onClick={() => setStep("input")} className="bg-transparent">
               Back
@@ -448,34 +437,28 @@ export function StoryGenerator() {
             </Button>
           </div>
 
-          {/* Note about public */}
           <p className="text-xs text-muted-foreground text-center">
             Tales are public by default so others can discover and listen.
           </p>
         </div>
       )}
 
-      {/* Generating Step */}
       {step === "generating" && (
         <div className="p-6 sm:p-8">
-          {/* Dynamic visualization */}
           <div className="relative h-48 rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 overflow-hidden mb-6">
-            {/* Animated background waves */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <Waveform isPlaying={true} barCount={60} className="h-24 w-full opacity-30" />
+              <Waveform className="h-24 w-full opacity-30" />
             </div>
-            {/* Central orb */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="relative">
                 <div className="absolute -inset-8 bg-primary/20 rounded-full blur-2xl animate-pulse" />
                 <Orb
-                  colors={["#22c55e", "#4ade80", "#86efac"]}
+                  colors={["#22c55e", "#4ade80"]}
                   agentState="thinking"
                   className="h-24 w-24 relative z-10"
                 />
               </div>
             </div>
-            {/* Floating particles */}
             <div className="absolute inset-0 overflow-hidden">
               {[...Array(6)].map((_, i) => (
                 <div
@@ -492,7 +475,6 @@ export function StoryGenerator() {
             </div>
           </div>
 
-          {/* Progress */}
           <div className="space-y-4">
             <div className="flex items-center justify-between text-sm">
               <span className="font-medium">{progressMessage}</span>
@@ -506,7 +488,6 @@ export function StoryGenerator() {
             </div>
           </div>
 
-          {/* Processing logs */}
           {storyId && (
             <div className="mt-6">
               <ProcessingLogs storyId={storyId} isDemo={false} />
@@ -515,7 +496,6 @@ export function StoryGenerator() {
         </div>
       )}
 
-      {/* Complete Step */}
       {step === "complete" && storyId && (
         <div className="p-6 sm:p-8 text-center">
           <div className="h-16 w-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">

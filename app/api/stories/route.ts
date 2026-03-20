@@ -3,6 +3,16 @@ import { getAuthenticatedUser } from "@/lib/auth"
 import { db, stories, codeRepositories, storyIntents } from "@/lib/db"
 import { eq } from "drizzle-orm"
 
+interface TTSConfigPayload {
+  ttsModelId?: string
+  stability?: number
+  similarityBoost?: number
+  style?: number
+  useSpeakerBoost?: boolean
+  outputFormat?: string
+  language?: string
+}
+
 interface CreateStoryWithRepoRequest {
   repoInfo: {
     url: string
@@ -17,6 +27,7 @@ interface CreateStoryWithRepoRequest {
   targetDurationMinutes: number
   expertiseLevel: string
   intent?: string
+  ttsConfig?: TTSConfigPayload
 }
 
 interface CreateStoryWithRepoIdRequest {
@@ -76,7 +87,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ data: story })
     }
 
-    const { repoInfo, narrativeStyle, voiceId, targetDurationMinutes, expertiseLevel, intent } = body
+    const { repoInfo, narrativeStyle, voiceId, targetDurationMinutes, expertiseLevel, intent, ttsConfig } = body
 
     const [repo] = await db
       .insert(codeRepositories)
@@ -124,6 +135,7 @@ export async function POST(req: Request) {
         status: "pending",
         progress: 0,
         progressMessage: "Queued for processing...",
+        modelConfig: ttsConfig ? { ttsConfig } : undefined,
       })
       .returning()
 

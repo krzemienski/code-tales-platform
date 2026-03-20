@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/runner/workspace/app/auth/sign-up/page.tsx"],"sourcesContent":["\"use client\"\n\nimport { useEffect } from \"react\"\n\nexport default function SignUpPage() {\n  useEffect(() => {\n    const url = \"/api/auth/login?return=/dashboard\"\n    if (window.top && window.top !== window) {\n      window.top.location.href = url\n    } else {\n      window.location.href = url\n    }\n  }, [])\n\n  return (\n    <div className=\"flex min-h-screen w-full flex-col items-center justify-center bg-background p-4\">\n      <p className=\"text-muted-foreground\">Redirecting to sign in...</p>\n    </div>\n  )\n}\n"],"names":["SignUpPage","url","window","top","location","href","className"],"mappings":";;;;;AAEA;;;AAFA;;AAIe,SAASA;;IACtB,IAAA,0KAAS;gCAAC;YACR,MAAMC,MAAM;YACZ,IAAIC,OAAOC,GAAG,IAAID,OAAOC,GAAG,KAAKD,QAAQ;gBACvCA,OAAOC,GAAG,CAACC,QAAQ,CAACC,IAAI,GAAGJ;YAC7B,OAAO;gBACLC,OAAOE,QAAQ,CAACC,IAAI,GAAGJ;YACzB;QACF;+BAAG,EAAE;IAEL,qBACE,6LAAC;QAAIK,WAAU;kBACb,cAAA,6LAAC;YAAEA,WAAU;sBAAwB;;;;;;;;;;;AAG3C;GAfwBN;KAAAA"}}]
-}

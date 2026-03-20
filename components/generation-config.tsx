@@ -264,7 +264,7 @@ export function useGenerationConfig(
   initialConfig?: Partial<GenerationConfig>,
 ): [GenerationConfig, (config: GenerationConfig) => void] {
   const [config, setConfig] = useState<GenerationConfig>({
-    modelId: "anthropic/claude-sonnet-4-20250514",
+    modelId: "anthropic/claude-sonnet-4-6",
     temperature: 0.7,
     maxTokens: null,
     priority: "quality",

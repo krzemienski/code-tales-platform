@@ -57,11 +57,22 @@ var __TURBOPACK__imported__module__$5b$externals$5d2f$crypto__$5b$external$5d$__
 const ISSUER = new URL(process.env.REPLIT_OIDC_ISSUER || "https://replit.com/oidc");
 const CLIENT_ID = process.env.REPLIT_OIDC_CLIENT_ID;
 const CLIENT_SECRET = process.env.REPLIT_OIDC_CLIENT_SECRET;
+function getExternalBaseUrl(request) {
+    const forwardedHost = request.headers.get("x-forwarded-host");
+    const forwardedProto = request.headers.get("x-forwarded-proto");
+    const host = forwardedHost || request.headers.get("host") || "codetales.app";
+    if (host.includes("localhost") || host.includes("127.0.0.1")) {
+        return `http://${host}`;
+    }
+    if (host === "0.0.0.0:5000" || host.startsWith("0.0.0.0")) {
+        return "https://codetales.app";
+    }
+    const protocol = forwardedProto || "https";
+    return `${protocol}://${host}`;
+}
 async function GET(request) {
     const returnUrl = request.nextUrl.searchParams.get("return") || "/dashboard";
-    const host = request.headers.get("host") || "codetales.app";
-    const protocol = host.includes("localhost") ? "http" : "https";
-    const baseUrl = `${protocol}://${host}`;
+    const baseUrl = getExternalBaseUrl(request);
     const redirectUri = `${baseUrl}/api/auth/callback`;
     try {
         const config = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$openid$2d$client$2f$build$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__["discovery"](ISSUER, CLIENT_ID, CLIENT_SECRET);

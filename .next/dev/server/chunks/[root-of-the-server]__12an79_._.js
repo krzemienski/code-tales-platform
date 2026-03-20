@@ -619,10 +619,21 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 const ISSUER = new URL(process.env.REPLIT_OIDC_ISSUER || "https://replit.com/oidc");
 const CLIENT_ID = process.env.REPLIT_OIDC_CLIENT_ID;
 const CLIENT_SECRET = process.env.REPLIT_OIDC_CLIENT_SECRET;
+function getExternalBaseUrl(request) {
+    const forwardedHost = request.headers.get("x-forwarded-host");
+    const forwardedProto = request.headers.get("x-forwarded-proto");
+    const host = forwardedHost || request.headers.get("host") || "codetales.app";
+    if (host.includes("localhost") || host.includes("127.0.0.1")) {
+        return `http://${host}`;
+    }
+    if (host === "0.0.0.0:5000" || host.startsWith("0.0.0.0")) {
+        return "https://codetales.app";
+    }
+    const protocol = forwardedProto || "https";
+    return `${protocol}://${host}`;
+}
 async function GET(request) {
-    const host = request.headers.get("host") || "codetales.app";
-    const protocol = host.includes("localhost") ? "http" : "https";
-    const baseUrl = `${protocol}://${host}`;
+    const baseUrl = getExternalBaseUrl(request);
     const redirectUri = `${baseUrl}/api/auth/callback`;
     const returnUrl = request.cookies.get("auth_return_url")?.value || "/dashboard";
     const storedState = request.cookies.get("oidc_state")?.value;
@@ -630,11 +641,12 @@ async function GET(request) {
     try {
         if (!storedState || !codeVerifier) {
             console.error("Auth callback: missing state or code_verifier cookie");
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].redirect(new URL("/auth/login?error=missing_state", request.url));
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].redirect(`${baseUrl}/auth/login?error=missing_state`);
         }
         const config = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$openid$2d$client$2f$build$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__["discovery"](ISSUER, CLIENT_ID, CLIENT_SECRET);
-        const currentUrl = new URL(request.url);
-        const tokens = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$openid$2d$client$2f$build$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__["authorizationCodeGrant"](config, currentUrl, {
+        const incomingUrl = new URL(request.url);
+        const externalUrl = new URL(`${baseUrl}${incomingUrl.pathname}${incomingUrl.search}`);
+        const tokens = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$openid$2d$client$2f$build$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__["authorizationCodeGrant"](config, externalUrl, {
             pkceCodeVerifier: codeVerifier,
             expectedState: storedState
         }, {
@@ -643,7 +655,7 @@ async function GET(request) {
         const claims = tokens.claims();
         if (!claims) {
             console.error("Auth callback: no claims in token response");
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].redirect(new URL("/auth/login?error=no_claims", request.url));
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].redirect(`${baseUrl}/auth/login?error=no_claims`);
         }
         const userInfo = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$openid$2d$client$2f$build$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__["fetchUserInfo"](config, tokens.access_token, claims.sub);
         const info = userInfo;
@@ -658,7 +670,7 @@ async function GET(request) {
             image: profileImageUrl || undefined
         });
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["setSessionCookie"])(sessionToken);
-        const response = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].redirect(new URL(returnUrl, request.url));
+        const response = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].redirect(new URL(returnUrl, baseUrl));
         response.cookies.delete("auth_return_url");
         response.cookies.delete("oidc_state");
         response.cookies.delete("oidc_code_verifier");
@@ -666,7 +678,7 @@ async function GET(request) {
     } catch (error) {
         console.error("Auth callback error:", error);
         const msg = error instanceof Error ? error.message : "unknown";
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].redirect(new URL(`/auth/login?error=callback_failed&detail=${encodeURIComponent(msg)}`, request.url));
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].redirect(`${baseUrl}/auth/login?error=callback_failed&detail=${encodeURIComponent(msg)}`);
     }
 }
 __turbopack_async_result__();

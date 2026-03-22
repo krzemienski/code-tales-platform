@@ -115,10 +115,10 @@ export default async function DashboardPage() {
   const userName = user.firstName || user.email?.split("@")[0] || "there"
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-background relative overflow-x-hidden">
       <ParallaxBackground />
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 overflow-hidden">
         <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-4">
             <TaliMascot size="sm" mood="happy" />
@@ -209,9 +209,9 @@ export default async function DashboardPage() {
               {userStories.map((story: any) => (
                 <div
                   key={story.id}
-                  className="group rounded-xl border border-border bg-card/30 p-4 transition-all hover:border-primary/50 card-glow"
+                  className="group rounded-xl border border-border bg-card/30 p-4 transition-all hover:border-primary/50 card-glow overflow-hidden"
                 >
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between min-w-0">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3">
                         <h3 className="truncate font-medium text-foreground">{story.title}</h3>
